@@ -20,7 +20,7 @@ def split_file(path_file, chunk_size):
     return files
 
 def create_file(fileName, dataArr):
-    f = open("img.jpg", "w+b")
+    f = open(fileName, "w+b")
     for file in dataArr:
         f.write(file)
     f.close()
@@ -62,6 +62,7 @@ def server(interface, port):
                         }
                         datagram = json.dumps(res).encode('utf-8')
                         sock.sendto(datagram, address)
+                        i += 1
                         delay = 0.1
                         sock.settimeout(delay)
                 else:
@@ -76,9 +77,6 @@ def server(interface, port):
                         sock.sendto(datagram, address)
                         sock.settimeout(delay)
                         i += 1
-                    else:
-                        print("An error ocurred")
-                        break
             # sock.settimeout(0)
         else:
             # Code if file don't exist
@@ -139,11 +137,13 @@ def client(hostname, port):
                             sock.send(datagramRes)
                             delay = 0.1
                             sock.settimeout(delay)
+                            i += 1
                     else:
-                        delay = 0.1 # seconds
                         datagram2 = json.loads(data2.decode('utf-8'))
-                        files.append( base64.decodebytes(datagram2['data'].encode("utf-8")) )
-                        i += 1
+                        if i == datagram2['id']:
+                            delay = 0.1 # seconds
+                            files.append( base64.decodebytes(datagram2['data'].encode("utf-8")) )
+                            i += 1
                 create_file(file_name, files)
                 print("File {} downloaded succesfuly".format(file_name))
             else:
